@@ -1,0 +1,71 @@
+import tweepy
+import time
+import requests
+import csv
+import smtplib
+
+def SendText(ticker,OGTweet):
+    if ticker is None:
+        return
+    carriers = {'att': '@txt.att.net', 'tmobile': ' @tmomail.net', 'verizon': '@vtext.com',
+                'sprint': '@page.nextel.com'}
+    message = "Elon tweeted about "+ticker
+    to_number = '***INSERT PHONE***{}'.format(carriers['att'])
+    auth = ('***INSERT GMAIL***', '***INSERT PW***')
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(auth[0], auth[1])
+    server.sendmail(auth[0], to_number, str(message))
+
+
+def RemoveWords(TweetList):
+    x = []
+    results = []
+    with open('/Users/clintmay/Downloads/WordCSV.csv', newline='') as inputfile:
+        for row in csv.reader(inputfile):
+            results.append(row[0])
+    x = [x for x in TweetList if x not in results]
+    return(x)
+
+def GetTicker(searchterm):
+    ticker = "empty"
+    url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(searchterm)
+    result = requests.get(url).json()
+    for x in result['ResultSet']['Result']:
+        ticker = x
+        break
+    if(ticker != "empty"):
+        if searchterm in ticker["name"].lower():
+            return ticker["symbol"]
+    else:
+        return "No"
+
+def Main(OGTweet):
+    Newtweet = api.user_timeline(screen_name = 'elonmusk', count = 100,include_rts = False,exclude_replies = True)[0]
+    while(OGTweet == Newtweet):
+        time.sleep(5)
+        return OGTweet
+    OGTweet = Newtweet
+    MostRecent = Newtweet.text
+    MostRecent = str(Newtweet.text).lower().replace(".","").replace("'s","").replace("!","").replace("#","").replace("@","").replace(",","")
+    MostRecentList = MostRecent.split()
+    EditedList = RemoveWords(MostRecentList)
+    for x in EditedList:
+        ticker1 = GetTicker(x)
+        if ticker1 != "No":
+            SendText(ticker1,OGTweet)
+    return OGTweet
+
+
+ckey = '***INSERT CKEY***'
+csecret = '***INSERT CSECRET***'
+atoken = '***INSERT ATOKEN***'
+asecret = '***INSERT ASECRET***'
+auth = tweepy.OAuthHandler(ckey, csecret)
+auth.set_access_token(atoken, asecret)
+api = tweepy.API(auth)
+tweets = api.home_timeline()
+OGTweet = api.user_timeline(screen_name = 'elonmusk', count = 100,include_rts = False,exclude_replies = True)[0]
+x = 1
+while(x == 1):
+    OGTweet = Main(OGTweet)
