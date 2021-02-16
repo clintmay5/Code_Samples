@@ -1,3 +1,11 @@
+# If you're reading this i'm not rich yet. My friends and I (along with the rest of the world) noticed that whenever Elon Musk 
+# tweets about a company the company's stock price will jump up by about 20% briefly before spiking back down. However, I'm not
+# a twitter user and the ticker has completed its spike before I'm able to see the tweet, log into my brokerage, and make a trade.
+# Automation is required to take advantage of this borderline market manipulation. The purpose of this script is to monitor Elon's
+# incoming tweets, analyze them to find a company name and ticker, then send a text to myself with the ticker and tweet. This script
+# could be improved to incorporate TD Ameritrade's API to automatically invest my money after each Elon tweet, and will possibly be
+# updated with this functionality in the future.
+
 import tweepy
 import time
 import requests
