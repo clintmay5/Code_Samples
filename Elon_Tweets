@@ -4,6 +4,7 @@ import requests
 import csv
 import smtplib
 
+# Function to send text to myself. Passing in the ticker as a string & tweet. Could be expanded to text multiple people by making to_number a dictionary of phone numbers & carriers
 def SendText(ticker,OGTweet):
     if ticker is None:
         return
@@ -17,7 +18,7 @@ def SendText(ticker,OGTweet):
     server.login(auth[0], auth[1])
     server.sendmail(auth[0], to_number, str(message))
 
-
+# Function to remove unnecessary words from tweet. Looks for matches in a downloaded CSV of 500 common words and removes them
 def RemoveWords(TweetList):
     x = []
     results = []
@@ -27,6 +28,7 @@ def RemoveWords(TweetList):
     x = [x for x in TweetList if x not in results]
     return(x)
 
+# Function to get ticker from search term. Serches each word on Yahoo Finance, returns the first result. If the first result has a match to the search term, considers it as a match
 def GetTicker(searchterm):
     ticker = "empty"
     url = "http://d.yimg.com/autoc.finance.yahoo.com/autoc?query={}&region=1&lang=en".format(searchterm)
@@ -40,6 +42,7 @@ def GetTicker(searchterm):
     else:
         return "No"
 
+# Main function to drive all other funtions. Monitors incoming tweets, runs all above functions to analyze tweet & send text.
 def Main(OGTweet):
     Newtweet = api.user_timeline(screen_name = 'elonmusk', count = 100,include_rts = False,exclude_replies = True)[0]
     while(OGTweet == Newtweet):
@@ -56,7 +59,7 @@ def Main(OGTweet):
             SendText(ticker1,OGTweet)
     return OGTweet
 
-
+# Initializing script. Use twitter API to initialize Tweepy, get first tweet, start comparing to new tweets
 ckey = '***INSERT CKEY***'
 csecret = '***INSERT CSECRET***'
 atoken = '***INSERT ATOKEN***'
