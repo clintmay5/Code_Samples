@@ -1,0 +1,40 @@
+# SUPER simple web scraper to pull construciton year from parcels. This script takes a CSV of parcel numbers, plugs them into the County of Ventura's lookup system, and returns the APN and construction year in an output CSV.
+# Please note that I called the County of Ventura and emailed multiple times trying to obtain this dataset before creating this scraper. If you're from Ventura: Sorry but also read my emails.
+
+from selenium import webdriver
+import pandas as pd
+import selenium.common.exceptions
+
+file = pd.read_csv(r'***List of parcel IDs')
+DRIVER_PATH = r'***Selenium Driver Path***'
+driver = webdriver.Chrome(executable_path=DRIVER_PATH)
+x = 0
+outfile = {}
+
+while(x<len(file)):
+    driver.get('https://assessor.countyofventura.org/research/propertyinfo.asp')
+    string = str(file['***APN Column Name***'].iloc[x])
+    if (len(string) == 9):
+        string = "0" + string
+    if(len(string) == 10):
+        try:
+            inapn = driver.find_element_by_id('APN').send_keys(string)
+        except:
+            continue
+        try:
+            submit = driver.find_element_by_name('Submit').click()
+        except:
+            continue
+        try:
+            year = driver.find_element_by_xpath('//table[3]/tbody/tr[3]/td[4]').text
+        except:
+            continue
+        outfile[x] = [string,year]
+        print(outfile[x],x)
+        if(x%100 == 0):
+            outputdf = pd.DataFrame.from_dict(outfile, orient='index', columns=['***APN Column Name***', 'Year'])
+            outputdf.to_csv(r'***Output Location***')
+            print("PRINTED")
+        x += 1
+    else:
+        continue
